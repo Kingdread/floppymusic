@@ -118,7 +118,7 @@ int Drive::reseed()
 {
     if (m_running) return -1;
     m_steps = 0;
-    m_direction = false;
+    m_direction = true;
 #ifndef NOGPIO
     GPIO_CLR = 1 << m_direction_pin;
 #endif
@@ -130,6 +130,9 @@ int Drive::reseed()
 #endif
         usleep(10);
     }
+#ifndef NOGPIO
+    GPIO_SET = 1 << m_direction_pin;
+#endif
     return 0;
 };
 
