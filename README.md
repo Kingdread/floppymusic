@@ -45,6 +45,29 @@ as argument:
 
 Run `floppymusic -h` to get an overview of available command line options.
 
+Playback & Hardware
+-------------------
+
+You can use any pins you want, you just have to write it into the configuration
+file. Each drive needs 2 pins (direction & step) and one ground connection (you
+can use the same for every drive). See the pin configuration/tutorial for more
+information.
+
+floppymusic uses the events of all tracks and channels. It works like a FIFO.
+If a note should be played and there is a free drive, this drive will play the
+note. If there is no free drive, the note will be discarded.
+
+For optimal results you should consider preparing the MIDI files, e.g. singling
+out the track you want.
+
+More resources
+--------------
+
+- floppy drive pin configuration: http://pinouts.ru/Storage/InternalDisk_pinout.shtml
+- controller software for Arduino boards: https://github.com/SammyIAm/Moppy
+- (one of many) MIDI editor for linux: http://www.rosegardenmusic.com/
+- tutorial: http://bit.ly/1oQfpjV
+
 License
 -------
 
