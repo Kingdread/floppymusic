@@ -1,0 +1,4 @@
+# Example drives.cfg
+# Lines starting with # are comments
+# drive <direction pin> <step pin>
+drive 17 22
