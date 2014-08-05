@@ -81,6 +81,7 @@ int main(int argc, char **argv)
     std::map<int, int> channel_map;
     std::map<int, int>::iterator drive_index;
     int pool_free = 0;
+    int new_index = -1;
 
     /* Play loop */
     for (std::vector<MidiEvent>::iterator event = track.events.begin();
@@ -99,22 +100,38 @@ int main(int argc, char **argv)
             {
                 drives[drive_index->second]->stop();
                 pool_free ^= 1 << drive_index->second;
+                channel_map.erase(drive_index);
             }
         }
         else if (event->event_type == MIDI_NOTE_ON)
         {
-            // See if a drive is free
-            for (int check = 0; check < dcount; ++check)
+            new_index = -1;
+            // See if the drive is already reserved
+            drive_index = channel_map.find(event->channel);
+            if (drive_index != channel_map.end())
             {
-                if (!(pool_free & (1 << check)))
+                new_index = drive_index->second;
+            }
+            else
+            {
+                // See if a drive is free
+                for (int check = 0; check < dcount; ++check)
                 {
-                    // Device is free
-                    channel_map[event->channel] = check;
-                    drives[check]->play(
-                        frequencies[event->param_1 % 12] / arguments.drop_factor);
-                    pool_free |= 1 << check;
-                    break; // stop searching for a drive
+                    if (!(pool_free & (1 << check)))
+                    {
+                        // Device is free
+                        new_index = check;
+                        break; // stop searching for a drive
+                    }
                 }
+            }
+            if (new_index != -1)
+            {
+
+                channel_map[event->channel] = new_index;
+                drives[new_index]->play(
+                    frequencies[event->param_1 % 12] / arguments.drop_factor);
+                pool_free |= 1 << new_index;
             }
         }
     }
