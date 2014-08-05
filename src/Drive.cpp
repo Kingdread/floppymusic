@@ -128,7 +128,7 @@ int Drive::reseed()
         GPIO_SET = 1 << m_step_pin;
         GPIO_CLR = 1 << m_step_pin;
 #endif
-        usleep(10);
+        usleep(2500);
     }
 #ifndef NOGPIO
     GPIO_SET = 1 << m_direction_pin;
