@@ -7,7 +7,7 @@
 #define WHITESPACE " \t"
 
 DriveConfig::DriveConfig()
-{};
+{}
 
 
 DriveConfig::DriveConfig(std::istream &inp)

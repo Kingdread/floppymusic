@@ -163,7 +163,7 @@ bool MidiReader::read_track(int t_nr, std::istream &inp)
     unsigned int i = 0;
     // Number of bytes consumed by read_varlen
     int rv_read;
-    MidiEvent last_event;
+    MidiEvent last_event = {0, 0, 0, 0, 0};
     // We don't store meta events, yet they can have a delta time. If
     // we ignore that, the whole timing will get messed up!
     int meta_delta = 0;
@@ -318,7 +318,7 @@ MidiTrack MidiReader::mergedTracks(std::set<int> muted)
     int nextchan = 0;
     bool exhausted;
     int min_delta;
-    vector<MidiEvent>::iterator *min_iter;
+    vector<MidiEvent>::iterator *min_iter = NULL;
     vector<MidiEvent>::iterator *min_end;
     MidiEvent min_event;
     unsigned int min_index;

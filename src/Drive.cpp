@@ -9,7 +9,7 @@
 Drive::Drive()
 {
     this->default_init();
-};
+}
 
 
 Drive::Drive(int direction_pin, int step_pin)
@@ -22,7 +22,7 @@ Drive::Drive(int direction_pin, int step_pin)
     OUT_GPIO(direction_pin);
     INP_GPIO(step_pin);
     OUT_GPIO(step_pin);
-};
+}
 
 
 void Drive::default_init()
@@ -50,7 +50,7 @@ int Drive::start()
     m_running = true;
     pthread_create(&m_thread, NULL, _drive_runner, this);
     return 0;
-};
+}
 
 
 
@@ -73,7 +73,7 @@ void Drive::play(double frequency)
     {
         pthread_cond_broadcast(&m_cond);
     }
-};
+}
 
 
 void Drive::loop()
@@ -111,7 +111,7 @@ void Drive::loop()
     }
     pthread_mutex_unlock(&mutex);
     pthread_mutex_destroy(&mutex);
-};
+}
 
 
 int Drive::reseed()
@@ -134,13 +134,13 @@ int Drive::reseed()
     GPIO_SET = 1 << m_direction_pin;
 #endif
     return 0;
-};
+}
 
 
 void Drive::stop()
 {
     play(0.0);
-};
+}
 
 
 inline void Drive::toggle_direction()
@@ -156,4 +156,4 @@ inline void Drive::toggle_direction()
         GPIO_CLR = 1 << m_direction_pin;
     }
 #endif
-};
+}
