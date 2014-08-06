@@ -163,6 +163,10 @@ bool MidiReader::read_track(int t_nr, std::istream &inp)
     unsigned int i = 0;
     // Number of bytes consumed by read_varlen
     int rv_read;
+    MidiEvent last_event;
+    // We don't store meta events, yet they can have a delta time. If
+    // we ignore that, the whole timing will get messed up!
+    int meta_delta = 0;
 
     while (i < track.header.chunk_size)
     {
@@ -187,6 +191,7 @@ bool MidiReader::read_track(int t_nr, std::istream &inp)
         // magic meta event:
         if (event.event_type == 0xF && event.channel == 0xF)
         {
+            meta_delta += event.delta_time;
             unsigned int meta_type = file_content[i];
             ++i;
             unsigned int meta_length = file_content[i];
@@ -220,23 +225,19 @@ bool MidiReader::read_track(int t_nr, std::istream &inp)
         }
         else if (!(event.event_type & 0x8))
         {
-            // Somehow every "normal" midi event should be in the format
-            // 0b1xxxxxxx. If you reach this else, then there is a byte that
-            // doesn't make sense to me. Just ignore it and search the next
-            // valid byte.
-            while (!(file_content[i] & 0x80))
-            {
-                ++i;
-            }
-            // i is now the position of the next good event byte (or maybe
-            // varlen byte?), one back to get the delta-time byte.
+            // Seems like some midi files omit the status/event type
+            // byte if it's the same as last event. This is purely
+            // based on observations and I haven't read this anywhere
+            // in a midi file format description.
+            event.event_type = last_event.event_type;
+            event.channel = last_event.channel;
+            // Compensate the "wrong" byte
             --i;
-            // In the future maybe create a more robust recover algorithm
-            // or research what those bytes are.
-            continue;
         }
         
         // normal event
+        event.delta_time += meta_delta;
+        meta_delta = 0;
         event.param_1 = file_content[i]; ++i;
         if (event.event_type != 0xC && event.event_type != 0xD)
         {
@@ -248,10 +249,17 @@ bool MidiReader::read_track(int t_nr, std::istream &inp)
         }
         else
         {
-            event.param_2 = -1;
+            event.param_2 = 0;
+        }
+        // Save last_event before changing the event's type, as otherwise
+        // the next event could be a NOTE_OFF too when it's really a NOTE_ON
+        last_event = event;
+        if (event.event_type == MIDI_NOTE_ON && event.param_2 == 0)
+        {
+            // NOTE ON with velocity of 0 should be treated as NOTE OFF
+            event.event_type = MIDI_NOTE_OFF;
         }
         track.events.push_back(event);
-        
     }
 
 end:
