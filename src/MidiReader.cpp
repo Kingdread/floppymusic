@@ -11,8 +11,8 @@ using std::memcmp;
 using std::memcpy;
 using std::vector;
 
-static const char MIDI_HEADER_ID[] = {'M', 'T', 'h', 'd'};
-static const char MIDI_TRACK_HEADER_ID[] = {'M', 'T', 'r', 'k'};
+static const char MIDI_HEADER_ID[] = {'M', 'T', 'h', 'd', 0};
+static const char MIDI_TRACK_HEADER_ID[] = {'M', 'T', 'r', 'k', 0};
 
 #define IS_META(event) (event.event_type == 0xF && event.channel == 0xF)
 #define IS_SYSEX(event) (event.event_type == 0xF && \
@@ -151,6 +151,15 @@ bool MidiReader::read_track(int t_nr, std::istream &inp)
         | buffer[2] << 8
         | buffer[3];
 
+    // Position in the track (in bytes since the track start)
+    unsigned int i = 0;
+    // Number of bytes consumed by read_varlen
+    int rv_read;
+    MidiEvent last_event = {0, 0, 0, 0, 0};
+    // We don't store meta events, yet they can have a delta time. If
+    // we ignore that, the whole timing will get messed up!
+    int meta_delta = 0;
+
     // To make it easier (and faster) we will just read the remaining
     // bytes of the file into memory.
     unsigned char *file_content = new unsigned char[track.header.chunk_size];
@@ -162,15 +171,12 @@ bool MidiReader::read_track(int t_nr, std::istream &inp)
     }
     char *sfile_content = reinterpret_cast<char*>(file_content);
     inp.read(sfile_content, track.header.chunk_size);
-
-    // Position in the track (in bytes since the track start)
-    unsigned int i = 0;
-    // Number of bytes consumed by read_varlen
-    int rv_read;
-    MidiEvent last_event = {0, 0, 0, 0, 0};
-    // We don't store meta events, yet they can have a delta time. If
-    // we ignore that, the whole timing will get messed up!
-    int meta_delta = 0;
+    if (inp.gcount() != (int)track.header.chunk_size)
+    {
+        std::cerr << "MIDI: Couldn't read all " << track.header.chunk_size
+            << " bytes, maybe the header is corrupted?" << std::endl;
+        goto fail;
+    }
 
     while (i < track.header.chunk_size)
     {
@@ -180,7 +186,7 @@ bool MidiReader::read_track(int t_nr, std::istream &inp)
         {
             std::cerr << "MIDI: Varlength data too much in track " << t_nr
                 << std::endl;
-            return false;
+            goto fail;
         }
         i += rv_read;
         // Storing the delta_time as microseconds since that will be
@@ -236,7 +242,7 @@ bool MidiReader::read_track(int t_nr, std::istream &inp)
             {
                 std::cerr << "Invalid SysEx event in track " << t_nr
                     << std::endl;
-                return false;
+                goto fail;
             }
             i += rv_read;
             i += varlen_to_int(buffer, rv_read);
@@ -285,6 +291,10 @@ end:
     m_tracks.push_back(track);
     delete[] file_content;
     return true;
+
+fail:
+    delete[] file_content;
+    return false;
 }
 
 
