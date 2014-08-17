@@ -14,6 +14,10 @@ using std::vector;
 static const char MIDI_HEADER_ID[] = {'M', 'T', 'h', 'd'};
 static const char MIDI_TRACK_HEADER_ID[] = {'M', 'T', 'r', 'k'};
 
+#define IS_META(event) (event.event_type == 0xF && event.channel == 0xF)
+#define IS_SYSEX(event) (event.event_type == 0xF && \
+        (event.channel == 0x0 || event.channel == 0x7))
+
 /* Extracts a variable length value from a char array, starting at *inp
  * and copying the relevant bytes to *buffer. Reads at most max bytes
  * and returns the number of bytes used.
@@ -189,7 +193,7 @@ bool MidiReader::read_track(int t_nr, std::istream &inp)
         ++i;
 
         // magic meta event:
-        if (event.event_type == 0xF && event.channel == 0xF)
+        if (IS_META(event))
         {
             meta_delta += event.delta_time;
             unsigned int meta_type = file_content[i];
@@ -221,6 +225,21 @@ bool MidiReader::read_track(int t_nr, std::istream &inp)
 
             }
             i += meta_length;
+            continue;
+        }
+        else if (IS_SYSEX(event))
+        {
+            // skip sysex events
+            meta_delta += event.delta_time;
+            rv_read = read_varlen(buffer, file_content + i, 4);
+            if (rv_read < 0)
+            {
+                std::cerr << "Invalid SysEx event in track " << t_nr
+                    << std::endl;
+                return false;
+            }
+            i += rv_read;
+            i += varlen_to_int(buffer, rv_read);
             continue;
         }
         else if (!(event.event_type & 0x8))
