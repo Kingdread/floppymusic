@@ -36,7 +36,7 @@ void Drive::default_init()
 }
 
 
-void *_drive_runner(void *drive)
+static void *_drive_runner(void *drive)
 {
     Drive *d = (Drive*)drive;
     d->loop();
@@ -76,6 +76,9 @@ void Drive::play(double frequency)
 }
 
 
+/* Loop function that sends the ON/OFF pulses on the step pin. This
+ * function is called by start() and runs in a seperate thread.
+ */
 void Drive::loop()
 {
     unsigned long nsec;

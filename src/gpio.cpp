@@ -43,5 +43,5 @@ void setup_io() {
    gpio = (volatile unsigned *)gpio_map;
 }
 #else
-void setup_io() {};
+void setup_io() {}
 #endif

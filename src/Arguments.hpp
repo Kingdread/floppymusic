@@ -10,6 +10,7 @@ struct Arguments
     std::string cfg_path;
     std::string midi_path;
     std::set<int> mute_tracks;
+    bool lyrics;
 };
 
 extern Arguments arguments;

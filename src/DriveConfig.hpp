@@ -27,8 +27,8 @@ class DriveConfig
     public:
     DriveConfig();
     DriveConfig(std::istream &inp);
-    DriveList& getDrives();
-    bool isValid();
+    DriveList getDrives() const;
+    bool isValid() const;
 };
 
 #endif

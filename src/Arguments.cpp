@@ -7,7 +7,7 @@
 #include <sstream>
 #include <unistd.h>
 
-Arguments arguments = {1, "drives.cfg", "", std::set<int>()};
+Arguments arguments = {1, "drives.cfg", "", std::set<int>(), false};
 
 static int help = 0;
 
@@ -18,6 +18,7 @@ static option long_opts[] = {
     {"mute",       required_argument, 0, 'm'},
     // Flags
     {"help",       no_argument,       &help, 1},
+    {"lyrics",     no_argument,       0, 'l'},
 
     {0, 0, 0, 0}
 };
@@ -25,7 +26,7 @@ static option long_opts[] = {
 
 static void print_usage()
 {
-    std::cout << "Usage: floppymusic [-c PATH] [-d FACTOR] [-m MUTE] MIDIFILE" << std::endl;
+    std::cout << "Usage: floppymusic [-c PATH] [-d FACTOR] [-m MUTE] [-l] MIDIFILE" << std::endl;
 }
 
 
@@ -39,6 +40,8 @@ static void print_help()
         "                         greater than 0 drops all notes by n oct-\n"
         "                         aves, while a negative integer makes every\n"
         "                         note higher.\n"
+        "\n"
+        "-l, --lyrics             Print lyrics (if available)\n"
         "\n"
         "-m MUTE, --mute          Mutes channels. The format is\n"
         "                         track:channel,track:channel,... If only\n"
@@ -73,7 +76,7 @@ void parse_args(int argc, char **argv)
     int option_index = 0;
     int c;
     bool invalid = false;
-    while ((c = getopt_long(argc, argv, "c:d:hm:", long_opts, &option_index)) != -1)
+    while ((c = getopt_long(argc, argv, "c:d:hlm:", long_opts, &option_index)) != -1)
     {
         switch (c)
         {
@@ -97,6 +100,10 @@ void parse_args(int argc, char **argv)
                 // Help message
                 help = 1;
                 break;
+            case 'l':
+                // Lyrics
+                arguments.lyrics = true;
+                break;
             case 'm':
                 // Mute channels
                 {
@@ -108,6 +115,8 @@ void parse_args(int argc, char **argv)
                         parse_muted(param);
                     }
                 }
+                std::cerr << "Warning: channel muting currently not "
+                    "working, they will remain unmuted." << std::endl;
                 break;
             case '?':
                 // getopt will print a message, just remember to exit later

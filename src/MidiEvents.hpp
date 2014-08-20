@@ -1,0 +1,7 @@
+#include "MidiEvent.hpp"
+#include "MidiEvent/NoteOnEvent.hpp"
+#include "MidiEvent/NoteOffEvent.hpp"
+#include "MidiEvent/GenericEvent.hpp"
+#include "MidiEvent/LyricsEvent.hpp"
+#include "MidiEvent/TextEvent.hpp"
+#include "MidiEvent/TempoEvent.hpp"

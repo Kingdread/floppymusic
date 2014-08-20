@@ -3,3 +3,4 @@ drives.cfg
 midi/
 obj/
 floppymusic
+src/version.hpp

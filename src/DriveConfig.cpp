@@ -18,7 +18,7 @@ DriveConfig::DriveConfig(std::istream &inp)
 
 /* Helper method to split a string by a delim.
  */
-std::vector<std::string> split(std::string const &s, std::string const &delim)
+static std::vector<std::string> split(std::string const &s, std::string const &delim)
 {
     std::vector<std::string> result;
     size_t pos, prev, start, len;
@@ -39,7 +39,7 @@ std::vector<std::string> split(std::string const &s, std::string const &delim)
 
 /* Helper method to convert a string to an int.
  */
-int str_to_int(std::string const &s)
+static int str_to_int(std::string const &s)
 {
     int result;
     std::stringstream ss(s);
@@ -51,7 +51,7 @@ int str_to_int(std::string const &s)
 /* Trimming strings, removing unneeded whitespace at the beginning and
  * the end
  */
-void trim(std::string &what)
+static void trim(std::string &what)
 {
     if (what.size() == 0) return;
     // We need to find the first whitespace that isn't followed by a
@@ -125,13 +125,13 @@ bool DriveConfig::read(std::istream &inp)
 
 
 // Reference to avoid a copy
-DriveList& DriveConfig::getDrives()
+DriveList DriveConfig::getDrives() const
 {
     return m_drives;
 }
 
 
-bool DriveConfig::isValid()
+bool DriveConfig::isValid() const
 {
     return m_valid;
 }
