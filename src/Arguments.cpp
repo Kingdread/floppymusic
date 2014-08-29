@@ -115,8 +115,6 @@ void parse_args(int argc, char **argv)
                         parse_muted(param);
                     }
                 }
-                std::cerr << "Warning: channel muting currently not "
-                    "working, they will remain unmuted." << std::endl;
                 break;
             case '?':
                 // getopt will print a message, just remember to exit later

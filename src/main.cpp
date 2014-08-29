@@ -119,6 +119,7 @@ int main(int argc, char **argv)
         if ((*event)->type() == Event_Note_Off)
         {
             NoteOffEvent* e = dynamic_cast<NoteOffEvent*>(*event);
+            if (e->muted) continue;
             // Stop playing and release the drive back to the pool
             drive_index = channel_map.find(e->getChannel());
             if (drive_index != channel_map.end())
@@ -131,6 +132,7 @@ int main(int argc, char **argv)
         else if ((*event)->type() == Event_Note_On)
         {
             NoteOnEvent* e = dynamic_cast<NoteOnEvent*>(*event);
+            if (e->muted) continue;
             new_index = -1;
             // See if the drive is already reserved
             drive_index = channel_map.find(e->getChannel());

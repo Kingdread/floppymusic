@@ -135,7 +135,6 @@ struct _track
  * remaining bits are the track:
  *      (track_nr << 4) | channel_nr
  *
- * TODO: muted not implemented since the update, will fix later.
  */
 EventList MidiFile::mergedTracks(std::set<int> muted)
 {
@@ -186,6 +185,7 @@ EventList MidiFile::mergedTracks(std::set<int> muted)
         {
             NoteOnEvent *e = dynamic_cast<NoteOnEvent*>(min_event);
             combination = min_track->index << 4 | e->getChannel();
+            e->muted = (muted.find(combination) != muted.end());
             if (chanmap.find(combination) == chanmap.end())
             {
                 chanmap[combination] = nextchan;
@@ -197,6 +197,7 @@ EventList MidiFile::mergedTracks(std::set<int> muted)
         {
             NoteOffEvent *e = dynamic_cast<NoteOffEvent*>(min_event);
             combination = min_track->index << 4 | e->getChannel();
+            e->muted = (muted.find(combination) != muted.end());
             if (chanmap.find(combination) == chanmap.end())
             {
                 chanmap[combination] = nextchan;

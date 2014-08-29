@@ -19,6 +19,7 @@ class NoteOnEvent : public MidiEvent
     int getVelocity() const;
 
     void setChannel(int c);
+    bool muted;
 };
 
 #endif

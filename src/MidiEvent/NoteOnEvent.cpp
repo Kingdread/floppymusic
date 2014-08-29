@@ -1,7 +1,7 @@
 #include "NoteOnEvent.hpp"
 
 NoteOnEvent::NoteOnEvent(int channel, int number, int velocity) :
-    m_channel(channel), m_number(number), m_velocity(velocity)
+    m_channel(channel), m_number(number), m_velocity(velocity), muted(false)
 {}
 
 

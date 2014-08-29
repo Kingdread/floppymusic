@@ -1,7 +1,7 @@
 #include "NoteOffEvent.hpp"
 
 NoteOffEvent::NoteOffEvent(int channel, int number) :
-    m_channel(channel), m_number(number)
+    m_channel(channel), m_number(number), muted(false)
 {}
 
 

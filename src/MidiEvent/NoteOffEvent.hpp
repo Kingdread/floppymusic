@@ -17,6 +17,7 @@ class NoteOffEvent : public MidiEvent
     int getNote() const;
 
     void setChannel(int c);
+    bool muted;
 };
 
 #endif
