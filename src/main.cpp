@@ -1,6 +1,6 @@
 #include "Arguments.hpp"
-#include "Drive.hpp"
 #include "DriveConfig.hpp"
+#include "DriveManager.hpp"
 #include "MidiEvents.hpp"
 #include "MidiFile.hpp"
 #include "MidiTrack.hpp"
@@ -66,16 +66,9 @@ int main(int argc, char **argv)
 
     std::cout << "Setting up drives" << std::endl;
     DriveList drive_list = drive_cfg.getDrives();
-    vDrive drives;
-    for (DriveList::iterator it = drive_list.begin(); it != drive_list.end();
-            ++it)
-    {
-        Drive *d = new Drive(it->direction_pin, it->stepper_pin);
-        drives.push_back(d);
-        d->reseed();
-        d->start();
-    }
-    int dcount = drives.size();
+    DriveManager dmgr = DriveManager(drive_list);
+    dmgr.setup();
+    int dcount = drive_list.size();
 
     std::cout << "Reading MIDI file" << std::endl;
     std::ifstream midi_input(arguments.midi_path.c_str());
@@ -124,7 +117,7 @@ int main(int argc, char **argv)
             drive_index = channel_map.find(e->getChannel());
             if (drive_index != channel_map.end())
             {
-                drives[drive_index->second]->stop();
+                dmgr.stop(drive_index->second);
                 pool_free ^= 1 << drive_index->second;
                 channel_map.erase(drive_index);
             }
@@ -157,7 +150,7 @@ int main(int argc, char **argv)
             {
 
                 channel_map[e->getChannel()] = new_index;
-                drives[new_index]->play(
+                dmgr.play(new_index,
                     frequencies[e->getNote() % 12] / arguments.drop_factor);
                 pool_free |= 1 << new_index;
             }
@@ -170,10 +163,5 @@ int main(int argc, char **argv)
     }
 
     std::cout << "Cleaning up" << std::endl;
-    for (vDrive::iterator drv = drives.begin(); drv != drives.end(); ++drv)
-    {
-        delete *drv;
-        *drv = NULL;
-    }
     std::cout << "Bye bye!" << std::endl;
 }
