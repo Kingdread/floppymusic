@@ -37,6 +37,7 @@ static std::string r_to_n(std::string s)
     return s;
 }
 
+#define MASK(channel, note) (((channel) << 7) | ((note) & 0x7F))
 
 typedef std::vector<Drive*> vDrive;
 int main(int argc, char **argv)
@@ -99,7 +100,7 @@ int main(int argc, char **argv)
     std::map<int, int>::iterator drive_index;
     int pool_free = 0;
     int new_index = -1;
-
+    unsigned int mask = 0;
     /* Play loop */
     for (EventList::iterator event = track.begin();
             event != track.end(); ++event)
@@ -114,7 +115,8 @@ int main(int argc, char **argv)
             NoteOffEvent* e = dynamic_cast<NoteOffEvent*>(*event);
             if (e->muted) continue;
             // Stop playing and release the drive back to the pool
-            drive_index = channel_map.find(e->getChannel());
+            mask = MASK(e->getChannel(), e->getNote());
+            drive_index = channel_map.find(mask);
             if (drive_index != channel_map.end())
             {
                 dmgr.stop(drive_index->second);
@@ -128,7 +130,8 @@ int main(int argc, char **argv)
             if (e->muted) continue;
             new_index = -1;
             // See if the drive is already reserved
-            drive_index = channel_map.find(e->getChannel());
+            mask = MASK(e->getChannel(), e->getNote());
+            drive_index = channel_map.find(mask);
             if (drive_index != channel_map.end())
             {
                 new_index = drive_index->second;
@@ -149,7 +152,7 @@ int main(int argc, char **argv)
             if (new_index != -1)
             {
 
-                channel_map[e->getChannel()] = new_index;
+                channel_map[mask] = new_index;
                 dmgr.play(new_index,
                     frequencies[e->getNote() % 12] / arguments.drop_factor);
                 pool_free |= 1 << new_index;
