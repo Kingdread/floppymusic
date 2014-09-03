@@ -14,6 +14,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <sys/resource.h>
 #include <unistd.h>
 #include <vector>
 
@@ -101,7 +102,9 @@ int main(int argc, char **argv)
     int pool_free = 0;
     int new_index = -1;
     unsigned int mask = 0;
+
     /* Play loop */
+    setpriority(PRIO_PGRP, 0, -20);
     for (EventList::iterator event = track.begin();
             event != track.end(); ++event)
     {
