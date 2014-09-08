@@ -37,6 +37,31 @@ static void *_drive_jumper(void *drive)
 }
 
 
+#ifndef FASTIO
+#pragma GCC push_options
+#pragma GCC optimize("O0")
+/* I've wondered for days why one of my drives is working with some test
+ * scripts (written in C and Python), but refuses to do anything when
+ * used with floppymusic. Turns out that floppymusic is just too fast.
+ * The overhead of the C output_gpio() calls or the Python calls were
+ * enough to let the drive work.
+ *
+ * This function does nothing but waste some CPU cycles. It is called
+ * between GPIO_SET and GPIO_CLR on the step pins. You can turn this
+ * behaviour off by compiling with -DFASTIO (change CC_FLAGS in
+ * Makefile accordingly).
+ */
+static void _nop_delay(void)
+{
+    for (int i = 15; i > 0; --i)
+    {
+        asm volatile("nop");
+    }
+}
+#pragma GCC pop_options
+#endif
+
+
 void DriveManager::setup()
 {
     if (m_running) return;
@@ -57,6 +82,9 @@ void DriveManager::setup()
         {
 #ifndef NOGPIO
             GPIO_SET = 1 << d->stepper_pin;
+#ifndef FASTIO
+            _nop_delay();
+#endif
             GPIO_CLR = 1 << d->stepper_pin;
 #endif
             usleep(2500);
@@ -108,6 +136,10 @@ void DriveManager::loop()
                 // now send a pulse
 #ifndef NOGPIO
                 GPIO_SET = 1 << d->stepper_pin;
+#ifndef FASTIO
+                // See definition of _nop_delay for more information
+                _nop_delay();
+#endif
                 GPIO_CLR = 1 << d->stepper_pin;
 #endif
                 d->ticks = 0;
