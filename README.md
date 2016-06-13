@@ -16,6 +16,8 @@ Requirements
 Installation
 ------------
 
+- if your Raspberry Pi is Raspberry Pi 2 Model B or NEWER, remove /src/gpio.hpp
+  file and rename /src/gpio.hpp.2 to /src/gpio.hpp
 - adjust Makefile to your needs. The standard Makefile should be fine if you're
   using g++.
 - run `make`
