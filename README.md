@@ -37,6 +37,11 @@ drive d2 s2
 Where d1 is the pin connected to the direction input of the first drive, s1 is
 the pin connected to the stepper input of the first drive, ...
 
+**Note**: The pin numbering may differ from library to library. floppymusic
+uses the "BCM" (Broadcom pin number) or "GPIO" number, not the ones WiringPi
+uses.  You can find an overview on http://pinout.xyz/, use the number labelled
+"BCM".
+
 When you've configured the drives, just run floppymusic and give it a MIDI file
 as argument:
 
