@@ -1,7 +1,11 @@
 #ifndef FM_GPIO_HPP
 #define FM_GPIO_HPP
 
+#ifdef PI_NEW_MODEL
+#define BCM2708_PERI_BASE        0x3F000000
+#else
 #define BCM2708_PERI_BASE        0x20000000
+#endif
 #define GPIO_BASE                (BCM2708_PERI_BASE + 0x200000) /* GPIO controller */
 
 #define PAGE_SIZE (4*1024)

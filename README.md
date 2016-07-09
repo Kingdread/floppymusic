@@ -18,7 +18,8 @@ Installation
 
 - adjust Makefile to your needs. The standard Makefile should be fine if you're
   using g++.
-- run `make`
+- run `make`. If you have a Raspberry Pi 2 model B or newer, run
+  `make MODEL=PI2`.
 - it will produce a single executable `floppymusic`in the current directory
 
 Usage
