@@ -30,8 +30,10 @@ needs is which pins it should use. You can specify this in `drives.cfg`. It
 should look like
 
 ```
-drive d1 s1
-drive d2 s2
+# The first number is the direction control; the second number is the step control
+# multiple definitions are supported.
+drive 1 2
+drive 3 4
 ```
 
 Where d1 is the pin connected to the direction input of the first drive, s1 is
